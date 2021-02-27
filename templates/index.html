@@ -1,0 +1,55 @@
+<html>
+    <head>
+        <title>YouTube Client</title>
+    </head>
+    <body><div id="box"></div></body>
+</html>
+<script>
+    let videos = {{videoIds|safe}}
+    const box = document.getElementById('box')
+    let num = 0
+    videos.forEach(id => {
+        const closebox = document.createElement('div')
+        closebox.className = 'vidbox'
+        const img = document.createElement('img')
+        img.src = `https://img.youtube.com/vi/${id}/mqdefault.jpg`
+        img.id = id
+        fetch('http://localhost:3050/id/'+id).then(function (response) {
+                return response.json()
+        }).then(function (html) {
+            const text = document.createElement('p')
+            text.innerHTML = `${html.title}<br>${html.author}<br>${html.views} Views<br>Uploaded ${html.uploaded}`
+            closebox.appendChild(text)
+        }).catch(function (err) {
+            console.warn(err)
+        })
+        img.addEventListener('click', () => {
+            fetch('http://localhost:3050/id/'+id).then(function (response) {
+                return response.json()
+            }).then(function (html) {
+                let video = document.createElement('video');
+                video.src = html['url'];
+                video.controls = true;
+                console.log(num)
+                document.getElementById(id).replaceWith(video)
+            }).catch(function (err){
+                console.warn(err)
+            })
+        })
+        closebox.appendChild(img)
+        box.appendChild(closebox)
+        num++;
+    });
+</script>
+<style>
+    .vidbox {
+        padding: .3em;
+        margin: .3em;
+        background-color: #909090;
+        border-radius: 3px;
+    }
+    html {
+        background-color: #F0F0F0;
+        color: white;
+    }
+</style>
