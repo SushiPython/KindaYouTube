@@ -1,19 +1,22 @@
 import requests
-from flask import Flask, render_template
-import json
+from flask import Flask, render_template, request
+import random
+import string
 
 app = Flask(__name__)
 
-@app.route('/')
-def main():
-    url = "https://www.youtube.com/youtubei/v1/browse?key=api-key"
+@app.route('/get-videos')
+def videos():
+    cont = request.args.get('cont')
+    data = ""
+    url = "https://www.youtube.com/youtubei/v1/browse?key=apikey"
 
     headers = {
-        "Cookie": "user-cookies",
+        "Cookie": "".encode('utf-8'),
         "Content-Type": "application/json",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0",
-        "Authorization": "SAPISIDHASH auth-code",
-        "X-Goog-Visitor-Id": "google-id",
+        "Authorization": "SAPISIDHASH auth",
+        "X-Goog-Visitor-Id": "visitor-id",
         "X-Goog_AuthUser": "2",
         "TE": "Trailers",
         "X-Youtube-Client-Name": "1",
@@ -25,7 +28,6 @@ def main():
         "X-Origin": "https://www.youtube.com"
     }
     
-    data = 'post-data'
     
     response = requests.post(
         url=url,
@@ -36,8 +38,13 @@ def main():
     videoIds = []
     for b in response.json()['onResponseReceivedActions'][0]['appendContinuationItemsAction']['continuationItems']:
         if "continuationItemRenderer" in b:
-            break
-        videoIds.append(b['richItemRenderer']['content']['videoRenderer']['videoId'])
-    return render_template('index.html', videoIds=videoIds)
+            videoIds.append(b['continuationItemRenderer']['continuationEndpoint']['continuationCommand']['token'])
+        else:
+            videoIds.append(b['richItemRenderer']['content']['videoRenderer']['videoId'])
+    return " ".join(videoIds)
+
+@app.route('/')
+def main():
+    return render_template('index.html')
 
 app.run(host='0.0.0.0', port=8080)
