@@ -11,24 +11,6 @@
 <script>
     const box = document.getElementById('grid')
     var contvalue = [""]
-    function addVideos(id, html) {
-        img.addEventListener('click', () => {
-            fetch('http://localhost:3050/id/'+id).then(function (response) {
-                return response.json()
-            }).then(function (html) {
-                let video = document.createElement('video');
-                video.src = html['url'];
-                video.controls = true;
-                video.className = 'margins'
-                document.getElementById(id).replaceWith(video)
-            }).catch(function (err){
-                console.warn(err)
-            })
-        })
-        closebox.appendChild(img)
-        box.appendChild(closebox)
-    }
-
     function loadVideos() {
         let videos = []
         fetch('/get-videos?cont='+contvalue[contvalue.length-1]).then(function (response) {
