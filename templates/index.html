@@ -2,27 +2,14 @@
     <head>
         <title>YouTube Client</title>
     </head>
-    <body><div id="box"></div></body>
+    <body><div class="box" id="box"><h1>Ad-Free YouTube Client</h1></div></body>
+    <div class="grid" id="grid"></div>
+    <button onClick="loadVideos()">More</button>
 </html>
 <script>
-    let videos = {{videoIds|safe}}
-    const box = document.getElementById('box')
-    let num = 0
-    videos.forEach(id => {
-        const closebox = document.createElement('div')
-        closebox.className = 'vidbox'
-        const img = document.createElement('img')
-        img.src = `https://img.youtube.com/vi/${id}/mqdefault.jpg`
-        img.id = id
-        fetch('http://localhost:3050/id/'+id).then(function (response) {
-                return response.json()
-        }).then(function (html) {
-            const text = document.createElement('p')
-            text.innerHTML = `${html.title}<br>${html.author}<br>${html.views} Views<br>Uploaded ${html.uploaded}`
-            closebox.appendChild(text)
-        }).catch(function (err) {
-            console.warn(err)
-        })
+    const box = document.getElementById('grid')
+    var contvalue = ["4qmFsgKNAxIPRkV3aGF0X3RvX3dhdGNoGtwCQ0dCNmdBSkRhVGhCUVVkV2RVRkJSbFpWZDBGQ1ZsWk5RVUZSUWtkU1dHUnZXVmhTWm1SSE9XWmtNa1l3V1RKblFVRlJRVUZCVVVWQ1FVRkJRVUZSUVVKQlFVRkNRVkpxYzJwTFRETnROSFoyUVdwSlRFTk1VSHB2TmxOWU9YUmZhVFYzUm1GaWQzQjBRMmhzTldSR09YZFpWMlJzV0ROT2RWbFlRbnBoUnprd1dETktiRm95YkhaaWJVWnpSV2c1VWs1SFRrZGthekExVVZSa1ZHTXhhM2RSTWtwMFlua3hjbHBHVmtWWFdFWjJaVmhDYTFwdGFHcEhhVGhCUVVkV2RVRkJSbFpWZDBGQ1ZsWk5RVUZSUWtkU1dHUnZXVmhTWm1SSE9XWmtNa1l3V1RKblFVRlJRVUZCVVVWQ1FVRkJRVUZSUVVKQlFVRkNRV1p4WTNnM01FcEJaMmhumgIaYnJvd3NlLWZlZWRGRXdoYXRfdG9fd2F0Y2g%3D"]
+    function addVideos(id, html) {
         img.addEventListener('click', () => {
             fetch('http://localhost:3050/id/'+id).then(function (response) {
                 return response.json()
@@ -30,7 +17,7 @@
                 let video = document.createElement('video');
                 video.src = html['url'];
                 video.controls = true;
-                console.log(num)
+                video.className = 'margins'
                 document.getElementById(id).replaceWith(video)
             }).catch(function (err){
                 console.warn(err)
@@ -38,18 +25,132 @@
         })
         closebox.appendChild(img)
         box.appendChild(closebox)
-        num++;
-    });
+    }
+
+    function loadVideos() {
+        let videos = []
+        fetch('/get-videos?cont='+contvalue[contvalue.length-1]).then(function (response) {
+            return response.text()
+        }).then(function (html) {
+            for (x of html.split(" ")) {
+                console.log(x)
+                videos.push(x)
+            }
+            videos.forEach(id => {
+                console.log(id)
+                console.log(videos[videos.length-1].length)
+                if (id.length > 20) {
+                    contvalue.push(id)
+                } else {
+                    const closebox = document.createElement('div')
+                    closebox.className = 'data'
+                    const img = document.createElement('img')
+                    img.className = 'margins'
+                    img.src = `https://img.youtube.com/vi/${id}/mqdefault.jpg`
+                    img.id = id
+                    fetch('http://localhost:3050/id/'+id).then(function (response) {
+                            return response.json()
+                    }).then(function (html) {
+                        const text = document.createElement('p')
+                        text.innerHTML = `${html.title}<br>${html.author}<br>${html.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} Views<br>Uploaded ${html.uploaded}`
+                        text.className = 'player'
+                        closebox.appendChild(text)
+                    }).catch(function (err) {
+                        console.warn(err)
+                    })
+                    img.addEventListener('click', () => {
+                        fetch('http://localhost:3050/id/'+id).then(function (response) {
+                            return response.json()
+                        }).then(function (html) {
+                            let video = document.createElement('video');
+                            video.src = html['url'];
+                            video.controls = true;
+                            document.getElementById(id).replaceWith(video)
+                        }).catch(function (err){
+                            console.warn(err)
+                        })
+                    })
+                    closebox.appendChild(img)
+                    box.appendChild(closebox)
+                }
+            });
+        }).catch(function (err) {
+            console.warn(err)
+        })
+    }
+    loadVideos()
 </script>
 <style>
-    .vidbox {
-        padding: .3em;
-        margin: .3em;
-        background-color: #909090;
-        border-radius: 3px;
-    }
-    html {
-        background-color: #F0F0F0;
-        color: white;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+    .grid {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    padding: .05em;
+  }
+
+  .data:hover {
+    box-shadow:
+      0 2.8px 2.2px rgba(0, 0, 0, 0.051),
+      0 6.7px 5.3px rgba(0, 0, 0, 0.073),
+      0 12.5px 10px rgba(0, 0, 0, 0.09),
+      0 22.3px 17.9px rgba(0, 0, 0, 0.107),
+      0 41.8px 33.4px rgba(0, 0, 0, 0.129),
+      0 100px 80px rgba(0, 0, 0, 0.18)
+    ;
+    transform: scale(1.01);
+
+  }
+  html {
+    background-color: #9CF6F6;
+  }
+  * {
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    transition-duration: 100ms;
+  }
+  .box {
+    text-align: center;
+    box-shadow:
+      0 8.5px 8.8px rgba(0, 0, 0, 0.021),
+      0 11.3px 15.5px rgba(0, 0, 0, 0.031),
+      0 12.7px 20.8px rgba(0, 0, 0, 0.038),
+      0 13.7px 25.5px rgba(0, 0, 0, 0.044),
+      0 14.4px 30.1px rgba(0, 0, 0, 0.05),
+      0 15.1px 35px rgba(0, 0, 0, 0.056),
+      0 15.9px 40.8px rgba(0, 0, 0, 0.062),
+      0 17.1px 48.6px rgba(0, 0, 0, 0.069),
+      0 19.4px 60.7px rgba(0, 0, 0, 0.079),
+      0 26px 89px rgba(0, 0, 0, 0.1)
+    ;
+    border-radius: 6px;
+    padding: .2em;
+    background-color: white;
+    margin: .5em;
+  }
+  .data {
+    box-shadow:
+      0 8.5px 8.8px rgba(0, 0, 0, 0.021),
+      0 11.3px 15.5px rgba(0, 0, 0, 0.031),
+      0 12.7px 20.8px rgba(0, 0, 0, 0.038),
+      0 13.7px 25.5px rgba(0, 0, 0, 0.044),
+      0 14.4px 30.1px rgba(0, 0, 0, 0.05),
+      0 15.1px 35px rgba(0, 0, 0, 0.056),
+      0 15.9px 40.8px rgba(0, 0, 0, 0.062),
+      0 17.1px 48.6px rgba(0, 0, 0, 0.069),
+      0 19.4px 60.7px rgba(0, 0, 0, 0.079),
+      0 26px 89px rgba(0, 0, 0, 0.1)
+    ;
+    border-radius: 6px;
+    background-color: white;
+    margin: .5em;
+    min-height: 50%
+  }
+  .player {
+      margin-left: .3em;
+  }
+  .margins {
+      margin-top: .3em;
+      margin-left: .3em;
+  }
+
 </style>
